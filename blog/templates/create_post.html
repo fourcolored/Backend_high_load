@@ -1,6 +1,0 @@
-<form method="POST">
-    {% csrf_token %}
-    {{ form }}
-    <button type="submit">submit</button>
-</form>
-<a href="{% url 'blog:post_list' %}">Back to Blog List</a>
