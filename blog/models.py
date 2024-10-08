@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
+from django.core.cache import cache
+
 class User(AbstractUser):
     bio = models.TextField(blank=True)
 
@@ -39,3 +41,7 @@ class Comment(models.Model):
         indexes = [
             models.Index(fields=['post', 'created_date'])
         ]
+    
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        cache.delete(f'comment_num_{self.post_id}')

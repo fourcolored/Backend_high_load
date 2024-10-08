@@ -20,8 +20,9 @@ from rest_framework.routers import DefaultRouter
 
 # router = DefaultRouter()
 # router.register('blog')
-
+from blog.views import test_cache_view
 urlpatterns = [
+    # path('', test_cache_view, name='test'),
     path('', include('blog.urls')),
     path('admin/', admin.site.urls),
 ]

@@ -1,0 +1,18 @@
+{% load cache %}
+
+{{ post.title }}
+<p>Number of Comments: {{ comment_num }}</p>
+{% cache 60 recent_comments post.id %}
+<ul>
+    {% for comment in comments %}
+        <li>{{ comment.author }}: {{ comment.content }}</li>
+    {% endfor %}
+</ul>
+{% endcache %}
+
+<p>Add Comments</p>
+<form method="post" action="{% url 'blog:add_comment' post.id %}">
+    {% csrf_token %}
+    {{ comment_form.content }}
+    <button type="submit">+</button>
+</form>
