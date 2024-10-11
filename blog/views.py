@@ -25,7 +25,7 @@ def get_post_detail(request, post_id):
     return render(request, 'post_detail.html', post_detail_info(post, post_id))
 
 def post_detail_info(post, post_id):
-    comments = post.comments
+    comments = post.comments.select_related('author')
     recent_comments = comments.order_by('-created_date')[:5]
 
     # check comments number in cache

@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from rest_framework.routers import DefaultRouter
+from debug_toolbar.toolbar import debug_toolbar_urls
 
 # router = DefaultRouter()
 # router.register('blog')
@@ -25,4 +25,4 @@ urlpatterns = [
     # path('', test_cache_view, name='test'),
     path('', include('blog.urls')),
     path('admin/', admin.site.urls),
-]
+] + debug_toolbar_urls()
