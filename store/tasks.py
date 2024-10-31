@@ -15,7 +15,7 @@ def send_purchase_result(order_id):
             recipient_list=[to_email],
             from_email="admin@ecommerce.com"
         )
-    except order.DoesNotExist:
+    except Order.DoesNotExist:
         print(f"Order with ID {order_id} does not exist.")
     except Exception as e:
         print(f"Error sending email: {e}")

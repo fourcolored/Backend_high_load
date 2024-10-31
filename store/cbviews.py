@@ -13,6 +13,7 @@ from store.models import *
 from django.core.cache import cache
 
 from .tasks import send_purchase_result
+from django.db import transaction
 
 class CategoryListView(APIView):
     permission_classes = (AllowAny,)
@@ -97,6 +98,7 @@ class OrderListView(APIView):
         order.update_status()
 
         # send_purchase_result.delay(order.id)
+        transaction.on_commit(lambda: send_purchase_result.delay(order.id))
 
         serializer = serializers.OrderSerializer(order)
         
