@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <title>Document</title>
+
+    <style>
+        .not-visible { display: none; }
+    </style>
+</head>
+<body>
+    <h1>Upload File</h1>
+    <form action="" method="post" enctype="multipart/form-data" id="upload_form">
+        {% csrf_token %}
+        <input type = "file" name = 'file' id="id_file">
+        <button type="submit">Submit</button>
+    </form>
+    <div class="container" id="progress-container"></div>
+
+    <script>
+        const input_file = document.getElementById('id_file');
+        const progress_container = document.getElementById('progress-container');
+
+
+        $("#upload_form").submit(function(e) {
+            e.preventDefault();
+            var formData = new FormData(this);
+            const file = input_file.files[0];
+            let progress_bar;
+
+            if (file) {
+                progress_bar = document.createElement('div');
+                progress_bar.classList.add('progress');
+                progress_container.appendChild(progress_bar);
+            }
+
+            $.ajax({
+                url: "http://127.0.0.1:8000/file/upload_file/",
+                type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                xhr: function() {
+                    const xhr = new XMLHttpRequest();
+                    xhr.upload.addEventListener("progress", function(e) {
+                        if (e.lengthComputable & progress_bar != null) {
+                            const percent = Math.round((e.loaded / e.total) * 100);
+                            progress_bar.innerHTML = `<div class="progress-bar" role="progressbar" aria-valuenow="${percent}" aria-valuemin="0" aria-valuemax="100" style="width:${percent}%"> </div>`
+                        }
+                    });
+                    return xhr;
+                },
+                success: function(response) {
+                    console.log("Upload successful:", response);
+                    progress_bar.classList.add('not-visible');
+                    checkProgress(response.file_id);
+                },
+                error: function(error) {
+                    let errorMessage = "Upload failed. Please try again.";
+                    if (error.responseJSON && error.responseJSON.error) {
+                        errorMessage = error.responseJSON.error; // Extract API error message
+                    } else if (error.responseText) {
+                        errorMessage = error.responseText; // Fallback to raw response
+                    }
+                    alert(errorMessage);
+                    console.error("Upload failed:", error);
+
+    if (progress_bar) {
+        progress_container.removeChild(progress_bar); // Remove the progress bar
+    }
+                },
+                cache: false,
+                contentType: false,
+                processData: false,
+            });
+        }) 
+
+        function checkProgress(fileId) {
+            setTimeout(function () {
+                $.get(`/file/progress/${fileId}/`, function(response) {
+                    if (response.status === "COMPLETED") {
+                        alert("File processed successfully!");
+                    } else if (response.status === "FAILED") {
+                        alert("File processing failed.");
+                    } else {
+                        checkProgress(fileId); // Retry if status is still 'PENDING'
+                    }
+                }).fail(function() {
+                    alert("Error checking progress.");
+                });
+            }   , 1000); // Poll every 1 second
+        }
+    </script>
+</body>
+</html>
